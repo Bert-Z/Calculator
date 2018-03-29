@@ -2,6 +2,7 @@
 // Built by Bert_Z
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -79,7 +80,8 @@ Token Token_stream::get()
         return Token('8', val);
     }
     default:
-        cout << "Bad token";
+        cerr << "Bad token";
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -88,65 +90,84 @@ Token_stream ts;
 double expression();
 
 //rule
-double primary(){
+double primary()
+{
     Token t = ts.get();
-    switch(t.kind){
-        case'(':{
-            double d = expression();
-            t = ts.get();
-            if(t.kind!=')')
-                cerr << "')'expected";
-            return d;
+    switch (t.kind)
+    {
+    case '(':
+    {
+        double d = expression();
+        t = ts.get();
+        if (t.kind != ')')
+        {
+            cerr << "')'expected";
+            exit(EXIT_FAILURE);
         }
-        case'8':
-            return t.value;
-        default:
-            cerr << "primary expected";
+
+        return d;
+    }
+
+    case '8':
+        return t.value;
+    default:
+        cerr << "primary expected";
+        exit(EXIT_FAILURE);
     }
 };
 
-double term(){
+double term()
+{
     double left = primary();
     Token t = ts.get();
 
-    while(true){
-        switch(t.kind){
-            case'*':
-                left *= primary();
-                t=ts.get();
-                break;
-            case'/':
-                double d=primary();
-                if(d==0) cerr<<"divide by zero";
-                left /= d;
-                t = ts.get();
-                break;
-            default:
-                ts.putback(t);
-                return left;
+    while (true)
+    {
+        switch (t.kind)
+        {
+        case '*':
 
+            left *= primary();
+            t = ts.get();
+            break;
+
+        case '/':
+        {
+            double d = primary();
+            if (d == 0)
+                cerr << "divide by zero";
+            left /= d;
+            t = ts.get();
+            break;
+        }
+
+        default:
+            ts.putback(t);
+            return left;
         }
     }
 };
 
-double expression() {
-    double left=term();
+double expression()
+{
+    double left = term();
     Token t = ts.get();
 
-    while(true){
-        switch(t.kind){
-            case'+':
-                left += term();
-                t = ts.get();
-                break;
-            case'-':
-                left-=term();
-                t = ts.get();
-                break;
-            default:
-                ts.putback(t);
-                return left;
-
+    while (true)
+    {
+        switch (t.kind)
+        {
+        case '+':
+            left += term();
+            t = ts.get();
+            break;
+        case '-':
+            left -= term();
+            t = ts.get();
+            break;
+        default:
+            ts.putback(t);
+            return left;
         }
     }
 };
@@ -154,16 +175,31 @@ double expression() {
 //main loop
 int main()
 {
-    try{
-        while(cin)
-            cout << expression() << endl;
+    try
+    {
+        double val;
+
+        while (cin)
+        {
+            Token t = ts.get();
+
+            if (t.kind == 'q')
+                break;
+            if (t.kind == ';')
+                cout << "=" << val << endl;
+            else
+                ts.putback(t);
+            val = expression();
+        }
     }
-    catch(exception & e){
+    catch (exception &e)
+    {
         cerr << e.what() << endl;
         return 1;
     }
-    catch(...){
-        cerr<<"exception\n";
+    catch (...)
+    {
+        cerr << "exception\n";
         return 2;
     }
 }
