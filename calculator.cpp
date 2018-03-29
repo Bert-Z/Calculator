@@ -88,11 +88,82 @@ Token_stream ts;
 double expression();
 
 //rule
-double primary() {}
-double term() {}
-double expression() {}
+double primary(){
+    Token t = ts.get();
+    switch(t.kind){
+        case'(':{
+            double d = expression();
+            t = ts.get();
+            if(t.kind!=')')
+                cerr << "')'expected";
+            return d;
+        }
+        case'8':
+            return t.value;
+        default:
+            cerr << "primary expected";
+    }
+};
+
+double term(){
+    double left = primary();
+    Token t = ts.get();
+
+    while(true){
+        switch(t.kind){
+            case'*':
+                left *= primary();
+                t=ts.get();
+                break;
+            case'/':
+                double d=primary();
+                if(d==0) cerr<<"divide by zero";
+                left /= d;
+                t = ts.get();
+                break;
+            default:
+                ts.putback(t);
+                return left;
+
+        }
+    }
+};
+
+double expression() {
+    double left=term();
+    Token t = ts.get();
+
+    while(true){
+        switch(t.kind){
+            case'+':
+                left += term();
+                t = ts.get();
+                break;
+            case'-':
+                left-=term();
+                t = ts.get();
+                break;
+            default:
+                ts.putback(t);
+                return left;
+
+        }
+    }
+};
 
 //main loop
 int main()
 {
+    try{
+        while(cin)
+            cout << expression() << endl;
+    }
+    catch(exception & e){
+        cerr << e.what() << endl;
+        return 1;
+    }
+    catch(...){
+        cerr<<"exception\n";
+        return 2;
+    }
 }
