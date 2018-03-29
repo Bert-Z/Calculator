@@ -1,7 +1,9 @@
 // This is a calculator program
 // Built by Bert_Z
 
+#include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <stdlib.h>
 
 using namespace std;
@@ -80,8 +82,10 @@ Token Token_stream::get()
         return Token('8', val);
     }
     default:
-        cerr << "Bad token";
-        exit(EXIT_FAILURE);
+        throw runtime_error("Bad token");
+        // cerr << "Bad token";
+        // system("pause");
+        // exit(EXIT_FAILURE);
     }
 }
 
@@ -101,8 +105,10 @@ double primary()
         t = ts.get();
         if (t.kind != ')')
         {
-            cerr << "')'expected";
-            exit(EXIT_FAILURE);
+            throw runtime_error("')'excepted");
+            // cerr << "')'expected";
+            // system("pause");
+            // exit(EXIT_FAILURE);
         }
 
         return d;
@@ -111,8 +117,10 @@ double primary()
     case '8':
         return t.value;
     default:
-        cerr << "primary expected";
-        exit(EXIT_FAILURE);
+        throw runtime_error("primary expected");
+        // cerr << "primary expected";
+        // system("pause");
+        // exit(EXIT_FAILURE);
     }
 };
 
@@ -135,7 +143,8 @@ double term()
         {
             double d = primary();
             if (d == 0)
-                cerr << "divide by zero";
+                throw runtime_error("divide by zero");
+            // cerr << "divide by zero";
             left /= d;
             t = ts.get();
             break;
@@ -175,11 +184,12 @@ double expression()
 //main loop
 int main()
 {
-    try
-    {
-        double val;
 
-        while (cin)
+    double val;
+
+    while (cin)
+    {
+        try
         {
             Token t = ts.get();
 
@@ -191,15 +201,15 @@ int main()
                 ts.putback(t);
             val = expression();
         }
+        catch (exception &e)
+        {
+            cerr << e.what() << endl;
+        }
+        catch (...)
+        {
+            cerr << "exception\n";
+        }
     }
-    catch (exception &e)
-    {
-        cerr << e.what() << endl;
-        return 1;
-    }
-    catch (...)
-    {
-        cerr << "exception\n";
-        return 2;
-    }
+
+    return 0;
 }
