@@ -5,8 +5,15 @@
 #include <iostream>
 #include <stdexcept>
 #include <stdlib.h>
+#include <string>
 
 using namespace std;
+
+const char number = '8';
+const char print = ';';
+const char quit = 'q';
+const string prompt = ">";
+const string result = "=";
 
 //class
 class Token
@@ -55,13 +62,14 @@ Token Token_stream::get()
 
     switch (ch)
     {
-    case ';': //cout something
-    case 'q': //quit
+    case print: //cout something
+    case quit:  //quit
     case '(':
     case ')':
     case '+':
     case '-':
     case '*':
+    case '%':
     case '/':
         return Token(ch);
     case '.':
@@ -79,7 +87,7 @@ Token Token_stream::get()
         cin.putback(ch);
         double val;
         cin >> val;
-        return Token('8', val);
+        return Token(number, val);
     }
     default:
         throw runtime_error("Bad token");
@@ -113,8 +121,11 @@ double primary()
 
         return d;
     }
-
-    case '8':
+    case '-':
+        return -primary();
+    case '+':
+        return +primary();
+    case number:
         return t.value;
     default:
         throw runtime_error("primary expected");
@@ -146,6 +157,21 @@ double term()
                 throw runtime_error("divide by zero");
             // cerr << "divide by zero";
             left /= d;
+            t = ts.get();
+            break;
+        }
+        case '%':
+        {
+            double d = primary();
+            int i1 = int(left);
+            if (i1 != left)
+                throw runtime_error("error");
+            int i2 = int(d);
+            if (i2 != d)
+                throw runtime_error("error");
+            if (d == 0)
+                throw runtime_error("%:divided by zero");
+            left = i1 % i2;
             t = ts.get();
             break;
         }
@@ -181,25 +207,38 @@ double expression()
     }
 };
 
+void calculate()
+{
+    cout << prompt;
+    Token t = ts.get();
+
+    while (t.kind == print)
+        t = ts.get();
+    if (t.kind == quit)
+    {
+        system("pause");
+        exit(EXIT_SUCCESS);
+    }
+    ts.putback(t);
+    cout << result << expression() << endl;
+}
+
 //main loop
 int main()
 {
-
-    double val;
 
     while (cin)
     {
         try
         {
-            Token t = ts.get();
-
-            if (t.kind == 'q')
-                break;
-            if (t.kind == ';')
-                cout << "=" << val << endl;
-            else
-                ts.putback(t);
-            val = expression();
+            calculate();
+            // if (t.kind == 'q')
+            //     break;
+            // if (t.kind == ';')
+            //     cout << "=" << val << endl;
+            // else
+            //     ts.putback(t);
+            // val = expression();
         }
         catch (exception &e)
         {
