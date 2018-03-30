@@ -14,6 +14,7 @@ const char print = ';';
 const char quit = 'q';
 const string prompt = ">";
 const string result = "=";
+double ansValue = 0;
 
 int factorial(int n)
 {
@@ -97,11 +98,19 @@ Token Token_stream::get()
         cin >> val;
         return Token(number, val);
     }
+    case 'A':
+    {
+        cin.putback(ch);
+        char a = cin.get();
+        char n = cin.get();
+        char s = cin.get();
+        if (a == 'A' && n == 'N' && s == 'S')
+        {
+            return Token(number, ansValue);
+        }
+    }
     default:
         throw runtime_error("Bad token");
-        // cerr << "Bad token";
-        // system("pause");
-        // exit(EXIT_FAILURE);
     }
 }
 
@@ -133,7 +142,7 @@ double basic()
     }
 };
 
-double mid()
+double primary()
 {
     double left = basic();
     Token t = ts.get();
@@ -150,24 +159,24 @@ double mid()
     return left;
 }
 
-double primary()
+double mid()
 {
     Token t = ts.get();
     switch (t.kind)
     {
     case '-':
-        return -primary();
+        return -mid();
     case '+':
-        return +primary();
+        return +mid();
     default:
         ts.putback(t);
-        return mid();
+        return primary();
     }
 }
 
 double term()
 {
-    double left = primary();
+    double left = mid();
     Token t = ts.get();
 
     while (true)
@@ -176,13 +185,13 @@ double term()
         {
         case '*':
 
-            left *= primary();
+            left *= mid();
             t = ts.get();
             break;
 
         case '/':
         {
-            double d = primary();
+            double d = mid();
             if (d == 0)
                 throw runtime_error("divide by zero");
             // cerr << "divide by zero";
@@ -192,7 +201,7 @@ double term()
         }
         case '%':
         {
-            double d = primary();
+            double d = mid();
             int i1 = int(left);
             if (i1 != left)
                 throw runtime_error("error");
@@ -250,7 +259,9 @@ void calculate()
         exit(EXIT_SUCCESS);
     }
     ts.putback(t);
-    cout << result << expression() << endl;
+    double ans = expression();
+    cout << result << ans << endl;
+    ansValue = ans;
 }
 
 //main loop
@@ -262,13 +273,6 @@ int main()
         try
         {
             calculate();
-            // if (t.kind == 'q')
-            //     break;
-            // if (t.kind == ';')
-            //     cout << "=" << val << endl;
-            // else
-            //     ts.putback(t);
-            // val = expression();
         }
         catch (exception &e)
         {
