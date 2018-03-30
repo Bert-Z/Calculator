@@ -15,6 +15,13 @@ const char quit = 'q';
 const string prompt = ">";
 const string result = "=";
 
+int factorial(int n)
+{
+    if (n == 0)
+        return 1;
+    return n * factorial(n - 1);
+}
+
 //class
 class Token
 {
@@ -71,6 +78,7 @@ Token Token_stream::get()
     case '*':
     case '%':
     case '/':
+    case '!':
         return Token(ch);
     case '.':
     case '0':
@@ -102,7 +110,7 @@ Token_stream ts;
 double expression();
 
 //rule
-double primary()
+double basic()
 {
     Token t = ts.get();
     switch (t.kind)
@@ -114,26 +122,48 @@ double primary()
         if (t.kind != ')')
         {
             throw runtime_error("')'excepted");
-            // cerr << "')'expected";
-            // system("pause");
-            // exit(EXIT_FAILURE);
         }
 
         return d;
     }
+    case number:
+        return t.value;
+    default:
+        throw runtime_error("basic expected");
+    }
+};
+
+double mid()
+{
+    double left = basic();
+    Token t = ts.get();
+    if (t.kind == '!')
+    {
+        if (int(left) == left && left >= 0)
+            return factorial(left);
+        else
+            throw runtime_error("error");
+    }
+
+    else
+        ts.putback(t);
+    return left;
+}
+
+double primary()
+{
+    Token t = ts.get();
+    switch (t.kind)
+    {
     case '-':
         return -primary();
     case '+':
         return +primary();
-    case number:
-        return t.value;
     default:
-        throw runtime_error("primary expected");
-        // cerr << "primary expected";
-        // system("pause");
-        // exit(EXIT_FAILURE);
+        ts.putback(t);
+        return mid();
     }
-};
+}
 
 double term()
 {
