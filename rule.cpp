@@ -14,7 +14,7 @@ int factorial(int n)
 }
 
 //文法规则
-double basic()
+double basic()                                          //basic包括括号运算和数字读取
 {
     Token t = ts.get();
     switch (t.kind)
@@ -37,7 +37,7 @@ double basic()
     }
 };
 
-double primary()
+double primary()                                        //primary包括阶乘运算
 {
     double left = basic();
     Token t = ts.get();
@@ -54,7 +54,7 @@ double primary()
     return left;
 }
 
-double mid()
+double mid()                                            //mid包括正负号运算
 {
     Token t = ts.get();
     switch (t.kind)
@@ -69,7 +69,7 @@ double mid()
     }
 }
 
-double term()
+double term()                                           //term包括乘、除、取余运算
 {
     double left = mid();
     Token t = ts.get();
@@ -117,7 +117,7 @@ double term()
     }
 };
 
-double expression()
+double expression()                                                     //expression包括加减运算
 {
     double left = term();
     Token t = ts.get();

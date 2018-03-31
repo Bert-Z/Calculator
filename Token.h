@@ -2,6 +2,7 @@
 #ifndef TOKEN_H_INCLUDED
 #define TOKEN_H_INCLUDED
 
+//建立一个Token类型用于数据正确的读取储存
 class Token
 {
   public:

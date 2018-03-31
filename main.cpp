@@ -13,49 +13,43 @@
 
 using namespace std;
 
-//class
-
-//Token_stream function
-
-//early declaration
-
-//rule
-
+//calculator function
 void calculate()
 {
-    cout << prompt;
+    cout << prompt;             //输入时打印'>'
     Token t = ts.get();
 
-    while (t.kind == print)
+    while (t.kind == print)     //读到';'输出结果
         t = ts.get();
-    if (t.kind == quit)
+    if (t.kind == quit)         //读到'q'退出程序
     {
         system("pause");
         exit(EXIT_SUCCESS);
     }
     ts.putback(t);
     double ans = expression();
-    cout << result << ans << endl;
-    ansValue = ans;
+    cout << result << ans << endl;      //输出结果
+
+    ansValue = ans;                 //用 "ANS"记录上次输出的结果
 }
 
-//main loop
+//main 
 int main()
 {
 
     while (cin)
     {
-        try
+        try                             
         {
             calculate();
         }
         catch (exception &e)
         {
-            cerr << e.what() << endl;
+            cerr << e.what() << endl;       //输出错误
         }
         catch (...)
         {
-            cerr << "exception\n";
+            cerr << "exception\n";          
         }
     }
 

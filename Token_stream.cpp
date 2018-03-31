@@ -5,6 +5,8 @@
 
 using namespace std;
 
+//类比cin建立一个Token流用于正确读取数字和文件
+
 Token_stream::Token_stream()
     : full(false), buffer(0) {}
 
