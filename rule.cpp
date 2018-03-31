@@ -1,21 +1,11 @@
-// This is a calculator program
-// Built by Bert_Z
-
-#include <exception>
-#include <iostream>
+//rule.cpp这个文件用于存放有关文法的函数实现
+#include "Token_stream.h"
+#include "declare.h"
 #include <stdexcept>
-#include <stdlib.h>
-#include <string>
 
 using namespace std;
 
-const char number = '8';
-const char print = ';';
-const char quit = 'q';
-const string prompt = ">";
-const string result = "=";
-double ansValue = 0;
-
+//阶乘函数
 int factorial(int n)
 {
     if (n == 0)
@@ -23,102 +13,7 @@ int factorial(int n)
     return n * factorial(n - 1);
 }
 
-//class
-class Token
-{
-  public:
-    char kind;
-    double value;
-    Token(char ch)
-        : kind(ch), value(0) {}
-    Token(char ch, double val)
-        : kind(ch), value(val) {}
-};
-
-class Token_stream
-{
-  public:
-    Token_stream();
-    Token get();
-    void putback(Token t);
-
-  private:
-    bool full;
-    Token buffer;
-};
-
-//Token_stream function
-Token_stream::Token_stream()
-    : full(false), buffer(0) {}
-
-void Token_stream::putback(Token t)
-{
-    buffer = t;
-    full = true;
-}
-
-Token Token_stream::get()
-{
-    if (full)
-    {
-        full = false;
-        return buffer;
-    }
-
-    char ch;
-    cin >> ch;
-
-    switch (ch)
-    {
-    case print: //cout something
-    case quit:  //quit
-    case '(':
-    case ')':
-    case '+':
-    case '-':
-    case '*':
-    case '%':
-    case '/':
-    case '!':
-        return Token(ch);
-    case '.':
-    case '0':
-    case '1':
-    case '2':
-    case '3':
-    case '4':
-    case '5':
-    case '6':
-    case '7':
-    case '8':
-    case '9':
-    {
-        cin.putback(ch);
-        double val;
-        cin >> val;
-        return Token(number, val);
-    }
-    case 'A':
-    {
-        cin.putback(ch);
-        char a = cin.get();
-        char n = cin.get();
-        char s = cin.get();
-        if (a == 'A' && n == 'N' && s == 'S')
-        {
-            return Token(number, ansValue);
-        }
-    }
-    default:
-        throw runtime_error("Bad token");
-    }
-}
-
-//early declaration
-Token_stream ts;
-double expression();
-
-//rule
+//文法规则
 double basic()
 {
     Token t = ts.get();
@@ -245,44 +140,3 @@ double expression()
         }
     }
 };
-
-void calculate()
-{
-    cout << prompt;
-    Token t = ts.get();
-
-    while (t.kind == print)
-        t = ts.get();
-    if (t.kind == quit)
-    {
-        system("pause");
-        exit(EXIT_SUCCESS);
-    }
-    ts.putback(t);
-    double ans = expression();
-    cout << result << ans << endl;
-    ansValue = ans;
-}
-
-//main loop
-int main()
-{
-
-    while (cin)
-    {
-        try
-        {
-            calculate();
-        }
-        catch (exception &e)
-        {
-            cerr << e.what() << endl;
-        }
-        catch (...)
-        {
-            cerr << "exception\n";
-        }
-    }
-
-    return 0;
-}
