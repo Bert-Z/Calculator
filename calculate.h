@@ -1,9 +1,124 @@
-//rule.cpp这个文件用于存放有关文法的函数实现
-#include "Token_stream.h"
-#include "declare.h"
+//Calculate.h的文件中只包括计算的语法与函数，具体的界面在interface.cpp
+#ifndef CALCULATE_H
+#define CALCULATE_H
+
+#include <iostream>
+#include <istream>
+#include <sstream>
 #include <stdexcept>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
 using namespace std;
+
+const char number = '8';
+const char print = ';';
+const char quit = 'q';
+const char prompt = '>';
+const char result = '=';
+double ansValue = 0;
+
+//factorial
+int factorial(int n);
+
+//rule
+double basic();
+double primary();
+double mid();
+double term();
+double expression();
+
+class Token
+{
+  public:
+    char kind;
+    double value;
+    Token(char ch)
+        : kind(ch), value(0) {}
+    Token(char ch, double val)
+        : kind(ch), value(val) {}
+};
+
+class Token_stream
+{
+  public:
+    Token_stream();
+    Token get();
+    void putback(Token t);
+
+  private:
+    bool full;
+    Token buffer;
+};
+
+Token_stream ts;
+
+Token_stream::Token_stream()
+    : full(false), buffer(0) {}
+
+void Token_stream::putback(Token t)
+{
+    buffer = t;
+    full = true;
+}
+
+Token Token_stream::get()
+{
+    if (full)
+    {
+        full = false;
+        return buffer;
+    }
+
+    char ch;
+    cin >> ch;
+
+    switch (ch)
+    {
+    case print: //cout something
+    case quit:  //quit
+    case '(':
+    case ')':
+    case '+':
+    case '-':
+    case '*':
+    case '%':
+    case '/':
+    case '!':
+        return Token(ch);
+    case '.':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    {
+        cin.putback(ch);
+        double val;
+        cin >> val;
+        return Token(number, val);
+    }
+    case 'A':
+    {
+        cin.putback(ch);
+        char a = cin.get();
+        char n = cin.get();
+        char s = cin.get();
+        if (a == 'A' && n == 'N' && s == 'S')
+        {
+            return Token(number, ansValue);
+        }
+    }
+    default:
+        throw runtime_error("Bad token");
+    }
+}
 
 //阶乘函数
 int factorial(int n)
@@ -140,3 +255,25 @@ double expression()                                                     //expres
         }
     }
 };
+
+void calculate()
+{
+    cout << prompt;             //输入时打印'>'
+    Token t = ts.get();
+
+    while (t.kind == print)     //读到';'输出结果
+        t = ts.get();
+    if (t.kind == quit)         //读到'q'退出程序
+    {
+        system("pause");
+        exit(EXIT_SUCCESS);
+    }
+    ts.putback(t);
+    double ans = expression();
+    cout << result << ans << endl;      //输出结果
+
+    ansValue = ans;                 //用 "ANS"记录上次输出的结果
+}
+
+
+#endif
